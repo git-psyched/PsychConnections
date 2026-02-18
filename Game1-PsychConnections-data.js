@@ -1,40 +1,41 @@
-// PSYCH CONNECTIONS - 60+ High-Yield Master Dataset (Board-Accurate)
+// PSYCH CONNECTIONS - 60+ High-Yield Master Dataset
+// Categories: symptom (green), treatment (blue), criteria (purple), risk (red)
 const ALL_DIAGNOSES = [
-  // MOOD & ANXIETY (Easy/Medium)
+  // --- MOOD & ANXIETY ---
   {"name":"Major Depressive Disorder","difficulty":"easy","clues":[{"text":"Anhedonia >2 weeks","category":"symptom"},{"text":"SSRI or CBT","category":"treatment"},{"text":"5+ SIGECAPS criteria","category":"criteria"},{"text":"No history of mania","category":"risk"}]},
   {"name":"Bipolar I Disorder","difficulty":"easy","clues":[{"text":"Manic episode >7 days","category":"symptom"},{"text":"Lithium or Valproate","category":"treatment"},{"text":"Functional impairment","category":"criteria"},{"text":"Hospitalization often needed","category":"risk"}]},
   {"name":"Bipolar II Disorder","difficulty":"medium","clues":[{"text":"Hypomania + Major Depression","category":"symptom"},{"text":"Quetiapine or Lamotrigine","category":"treatment"},{"text":"Hypomania >4 days","category":"criteria"},{"text":"No history of full mania","category":"risk"}]},
-  {"name":"Generalized Anxiety Disorder","difficulty":"easy","clues":[{"text":"Excessive worry >6 months","category":"symptom"},{"text":"SSRI or SNRI","category":"treatment"},{"text":"3+ physical symptoms","category":"criteria"},{"text":"Muscle tension & fatigue","category":"risk"}]},
-  {"name":"Panic Disorder","difficulty":"easy","clues":[{"text":"Recurrent panic attacks","category":"symptom"},{"text":"SSRI + CBT","category":"treatment"},{"text":"Fear of future attacks","category":"criteria"},{"text":"Unexpected physiological surge","category":"risk"}]},
+  {"name":"GAD","difficulty":"easy","clues":[{"text":"Excessive worry >6 months","category":"symptom"},{"text":"SSRI or SNRI","category":"treatment"},{"text":"3+ physical symptoms","category":"criteria"},{"text":"Muscle tension & fatigue","category":"risk"}]},
+  {"name":"Panic Disorder","difficulty":"easy","clues":[{"text":"Recurrent panic attacks","category":"symptom"},{"text":"SSRI + CBT","category":"treatment"},{"text":"Fear of future attacks","category":"criteria"},{"text":"Women 20-30 years","category":"risk"}]},
+  {"name":"Persistent Depressive Disorder","difficulty":"medium","clues":[{"text":"Low mood most days","category":"symptom"},{"text":"Antidepressants + Therapy","category":"treatment"},{"text":"Duration >2 years","category":"criteria"},{"text":"Never symptom-free >2 months","category":"risk"}]},
   {"name":"Cyclothymic Disorder","difficulty":"medium","clues":[{"text":"Hypomania + Mild depression","category":"symptom"},{"text":"Lithium or Valproate","category":"treatment"},{"text":"Duration >2 years","category":"criteria"},{"text":"Never meets MDD criteria","category":"risk"}]},
-  {"name":"Persistent Depressive Disorder","difficulty":"medium","clues":[{"text":"Low mood most days","category":"symptom"},{"text":"Antidepressants + Therapy","category":"treatment"},{"text":"Duration >2 years","category":"criteria"},{"text":"'Eeyore' personality","category":"risk"}]},
 
-  // PSYCHOTIC SPECTRUM (Medium)
+  // --- PSYCHOTIC SPECTRUM ---
   {"name":"Schizophrenia","difficulty":"easy","clues":[{"text":"Auditory hallucinations","category":"symptom"},{"text":"Atypical antipsychotics","category":"treatment"},{"text":"Duration >6 months","category":"criteria"},{"text":"Ventricular enlargement","category":"risk"}]},
   {"name":"Schizoaffective Disorder","difficulty":"medium","clues":[{"text":"Psychosis + Mood symptoms","category":"symptom"},{"text":"Antipsychotic + Mood stabilizer","category":"treatment"},{"text":"2 weeks psychosis alone","category":"criteria"},{"text":"Better prognosis than SZ","category":"risk"}]},
   {"name":"Schizophreniform","difficulty":"medium","clues":[{"text":"Delusions & Hallucinations","category":"symptom"},{"text":"Antipsychotic trial","category":"treatment"},{"text":"1 to 6 month duration","category":"criteria"},{"text":"Likely progression to SZ","category":"risk"}]},
   {"name":"Brief Psychotic Disorder","difficulty":"medium","clues":[{"text":"Sudden onset psychosis","category":"symptom"},{"text":"Self-limiting or haloperidol","category":"treatment"},{"text":"Duration <1 month","category":"criteria"},{"text":"Triggered by severe stress","category":"risk"}]},
-  {"name":"Delusional Disorder","difficulty":"hard","clues":[{"text":"Fixed non-bizarre belief","category":"symptom"},{"text":"Antipsychotics (often poor)","category":"treatment"},{"text":">1 month, no other SZ signs","category":"criteria"},{"text":"Otherwise normal functioning","category":"risk"}]},
+  {"name":"Delusional Disorder","difficulty":"hard","clues":[{"text":"Fixed non-bizarre belief","category":"symptom"},{"text":"Antipsychotics","category":"treatment"},{"text":">1 month, no other SZ signs","category":"criteria"},{"text":"Otherwise normal functioning","category":"risk"}]},
 
-  // TRAUMA & SOMATIC (Medium/Hard)
+  // --- TRAUMA & SOMATIC ---
   {"name":"PTSD","difficulty":"easy","clues":[{"text":"Flashbacks & Nightmares","category":"symptom"},{"text":"Prazosin (for nightmares)","category":"treatment"},{"text":"Duration >1 month","category":"criteria"},{"text":"Traumatic life-threat","category":"risk"}]},
   {"name":"Adjustment Disorder","difficulty":"medium","clues":[{"text":"Distress out of proportion","category":"symptom"},{"text":"Psychotherapy","category":"treatment"},{"text":"Within 3 months of stressor","category":"criteria"},{"text":"Resolves within 6 months","category":"risk"}]},
   {"name":"Conversion Disorder","difficulty":"medium","clues":[{"text":"Neurological symptom deficit","category":"symptom"},{"text":"Education + Physical therapy","category":"treatment"},{"text":"La belle indifference","category":"criteria"},{"text":"Incompatible with anatomy","category":"risk"}]},
   {"name":"Illness Anxiety Disorder","difficulty":"medium","clues":[{"text":"Preoccupation with having disease","category":"symptom"},{"text":"Regularly scheduled visits","category":"treatment"},{"text":"Minimal somatic symptoms","category":"criteria"},{"text":"'Hypochondriasis' old term","category":"risk"}]},
-  {"name":"Somatic Symptom Disorder","difficulty":"medium","clues":[{"text":"Excessive anxiety over symptoms","category":"symptom"},{"text":"Single primary provider","category":"treatment"},{"text":"1+ distressing somatic symptom","category":"criteria"},{"text":"Frequent medical utilization","category":"risk"}]},
+  {"name":"Somatic Symptom Disorder","difficulty":"medium","clues":[{"text":"Excessive anxiety over pain","category":"symptom"},{"text":"Single primary provider","category":"treatment"},{"text":"1+ distressing somatic symptom","category":"criteria"},{"text":"Frequent medical utilization","category":"risk"}]},
 
-  // PEDIATRIC & NEURODEVELOPMENTAL
+  // --- EATING & SLEEP ---
+  {"name":"Anorexia Nervosa","difficulty":"easy","clues":[{"text":"Fear of weight gain","category":"symptom"},{"text":"Nutritional rehab + CBT","category":"treatment"},{"text":"BMI <18.5 kg/m2","category":"criteria"},{"text":"Lanugo or bradycardia","category":"risk"}]},
+  {"name":"Bulimia Nervosa","difficulty":"easy","clues":[{"text":"Binge eating + purging","category":"symptom"},{"text":"Fluoxetine (FDA approved)","category":"treatment"},{"text":"BMI is NORMAL or HIGH","category":"criteria"},{"text":"Parotid gland swelling","category":"risk"}]},
+  {"name":"Narcolepsy","difficulty":"hard","clues":[{"text":"Cataplexy & Sleep attacks","category":"symptom"},{"text":"Modafinil or Oxybate","category":"treatment"},{"text":"Decreased CSF hypocretin-1","category":"criteria"},{"text":"Shortened REM latency","category":"risk"}]},
+
+  // --- PEDS ---
   {"name":"ADHD","difficulty":"easy","clues":[{"text":"Inattention & Impulsivity","category":"symptom"},{"text":"Stimulants (Methylphenidate)","category":"treatment"},{"text":"Onset before age 12","category":"criteria"},{"text":"Symptoms in 2+ settings","category":"risk"}]},
   {"name":"Oppositional Defiant Disorder","difficulty":"easy","clues":[{"text":"Argumentative & Defiant","category":"symptom"},{"text":"Parent management training","category":"treatment"},{"text":"Angry/Irritable mood","category":"criteria"},{"text":"No serious law-breaking","category":"risk"}]},
   {"name":"Conduct Disorder","difficulty":"medium","clues":[{"text":"Aggression toward people/animals","category":"symptom"},{"text":"Multimodal therapy","category":"treatment"},{"text":"Age <18 (Precursor to ASPD)","category":"criteria"},{"text":"Theft & rule violations","category":"risk"}]},
   {"name":"Tourette Syndrome","difficulty":"medium","clues":[{"text":"Multiple motor + 1 vocal tic","category":"symptom"},{"text":"Guanfacine or Tetrabenazine","category":"treatment"},{"text":"Onset before age 18","category":"criteria"},{"text":"Duration >1 year","category":"risk"}]},
 
-  // EATING & SLEEP
-  {"name":"Anorexia Nervosa","difficulty":"easy","clues":[{"text":"Fear of weight gain","category":"symptom"},{"text":"Nutritional rehab + CBT","category":"treatment"},{"text":"BMI <18.5 kg/m2","category":"criteria"},{"text":"Lanugo or bradycardia","category":"risk"}]},
-  {"name":"Bulimia Nervosa","difficulty":"easy","clues":[{"text":"Binge eating + purging","category":"symptom"},{"text":"Fluoxetine (FDA approved)","category":"treatment"},{"text":"BMI is NORMAL or HIGH","category":"criteria"},{"text":"Parotid gland swelling","category":"risk"}]},
-  {"name":"Narcolepsy","difficulty":"hard","clues":[{"text":"Cataplexy & Sleep attacks","category":"symptom"},{"text":"Modafinil or Oxybate","category":"treatment"},{"text":"Decreased CSF hypocretin-1","category":"criteria"},{"text":"Shortened REM latency","category":"risk"}]},
-
-  // PERSONALITY DISORDERS (Hard Cluster)
+  // --- PERSONALITY DISORDERS ---
   {"name":"Borderline Personality","difficulty":"hard","clues":[{"text":"Splitting & Impulsivity","category":"symptom"},{"text":"Dialectical Behavior Therapy","category":"treatment"},{"text":"Unstable relationships","category":"criteria"},{"text":"Suicidal gestures/Self-harm","category":"risk"}]},
   {"name":"Antisocial Personality","difficulty":"hard","clues":[{"text":"Disregard for others' rights","category":"symptom"},{"text":"Therapy (often ineffective)","category":"treatment"},{"text":"Age >18 (Conduct before 15)","category":"criteria"},{"text":"Lack of remorse/Criminality","category":"risk"}]},
   {"name":"Schizoid Personality","difficulty":"hard","clues":[{"text":"Socially detached, loner","category":"symptom"},{"text":"Therapy (if requested)","category":"treatment"},{"text":"Neither desires nor enjoys sex","category":"criteria"},{"text":"Emotional coldness","category":"risk"}]},
@@ -42,19 +43,17 @@ const ALL_DIAGNOSES = [
   {"name":"Avoidant Personality","difficulty":"hard","clues":[{"text":"Socially inhibited, shy","category":"symptom"},{"text":"SSRI + Therapy","category":"treatment"},{"text":"Fear of rejection/criticism","category":"criteria"},{"text":"Desires but fears relationships","category":"risk"}]},
   {"name":"Obsessive-Compulsive PD","difficulty":"hard","clues":[{"text":"Perfectionism & Control","category":"symptom"},{"text":"Psychotherapy","category":"treatment"},{"text":"Ego-syntonic rigidity","category":"criteria"},{"text":"Preoccupied with details/lists","category":"risk"}]},
 
-  // TOXICOLOGY & URGENT (Hard)
-  {"name":"Neuroleptic Malignant Syndrome","difficulty":"medium","clues":[{"text":"Lead-pipe rigidity & fever","category":"symptom"},{"text":"Dantrolene or Bromocriptine","category":"treatment"},{"text":"Elevated Creatine Kinase","category":"criteria"},{"text":"Antipsychotic use","category":"risk"}]},
+  // --- TOXICOLOGY & SYNDROMES ---
+  {"name":"NMS","difficulty":"medium","clues":[{"text":"Lead-pipe rigidity & fever","category":"symptom"},{"text":"Dantrolene or Bromocriptine","category":"treatment"},{"text":"Elevated Creatine Kinase","category":"criteria"},{"text":"Antipsychotic use","category":"risk"}]},
   {"name":"Serotonin Syndrome","difficulty":"medium","clues":[{"text":"Hyperreflexia & Myoclonus","category":"symptom"},{"text":"Cyproheptadine","category":"treatment"},{"text":"Autonomic instability","category":"criteria"},{"text":"SSRI + MAOI interaction","category":"risk"}]},
   {"name":"Opioid Intoxication","difficulty":"hard","clues":[{"text":"Pinpoint pupils (Miosis)","category":"symptom"},{"text":"Naloxone","category":"treatment"},{"text":"Respiratory depression","category":"criteria"},{"text":"Decreased bowel sounds","category":"risk"}]},
-  {"name":"Opioid Withdrawal","difficulty":"hard","clues":[{"text":"Yawning, Lacrimation, Piloerection","category":"symptom"},{"text":"Methadone or Clonidine","category":"treatment"},{"text":"Dilated pupils (Mydriasis)","category":"criteria"},{"text":"Flu-like symptoms","category":"risk"}]},
+  {"name":"Opioid Withdrawal","difficulty":"hard","clues":[{"text":"Yawning & Piloerection","category":"symptom"},{"text":"Methadone or Clonidine","category":"treatment"},{"text":"Dilated pupils (Mydriasis)","category":"criteria"},{"text":"Flu-like symptoms","category":"risk"}]},
   {"name":"Alcohol Withdrawal","difficulty":"hard","clues":[{"text":"Tremors & Seizures","category":"symptom"},{"text":"Benzodiazepines","category":"treatment"},{"text":"Delirium Tremens (48-96h)","category":"criteria"},{"text":"Visual/Tactile hallucinations","category":"risk"}]},
   {"name":"PCP Intoxication","difficulty":"hard","clues":[{"text":"Nystagmus & Aggression","category":"symptom"},{"text":"Benzodiazepines","category":"treatment"},{"text":"Diminished pain perception","category":"criteria"},{"text":"Extreme physical strength","category":"risk"}]},
-  {"name":"LSD Intoxication","difficulty":"hard","clues":[{"text":"Visual hallucinations/Synesthesia","category":"symptom"},{"text":"Supportive care","category":"treatment"},{"text":"Pupillary dilation","category":"criteria"},{"text":"Expanded consciousness feel","category":"risk"}]},
   {"name":"Cocaine Intoxication","difficulty":"hard","clues":[{"text":"Euphoria & Chest pain","category":"symptom"},{"text":"Benzodiazepines","category":"treatment"},{"text":"Pupillary dilation","category":"criteria"},{"text":"Tactile hallucinations (bugs)","category":"risk"}]},
 
-  // MISCELLANEOUS & OBSERVED
+  // --- MISCELLANEOUS ---
   {"name":"Factitious Disorder","difficulty":"hard","clues":[{"text":"Intentional falsification","category":"symptom"},{"text":"Primary care consistency","category":"treatment"},{"text":"Assuming the sick role","category":"criteria"},{"text":"Medical/Nursing background","category":"risk"}]},
-  {"name":"Malingering","difficulty":"hard","clues":[{"text":"Exaggerated symptoms","category":"symptom"},{"text":"Direct confrontation avoidant","category":"treatment"},{"text":"External secondary gain","category":"criteria"},{"text":"Legal or financial incentive","category":"risk"}]},
-  {"name":"Body Dysmorphic Disorder","difficulty":"hard","clues":[{"text":"Preoccupation with defect","category":"symptom"},{"text":"High-dose SSRI + CBT","category":"treatment"},{"text":"Repetitive mirror checking","category":"criteria"},{"text":"High rate of plastic surgery","category":"risk"}]},
-  {"name":"Hoarding Disorder","difficulty":"hard","clues":[{"text":"Difficulty discarding items","category":"symptom"},{"text":"Specialized CBT","category":"treatment"},{"text":"Accumulation cluttering living areas","category":"criteria"},{"text":"Distress associated with discarding","category":"risk"}]}
+  {"name":"Malingering","difficulty":"hard","clues":[{"text":"Exaggerated symptoms","category":"symptom"},{"text":"Confrontation avoidant","category":"treatment"},{"text":"External secondary gain","category":"criteria"},{"text":"Legal or financial incentive","category":"risk"}]},
+  {"name":"Body Dysmorphic Disorder","difficulty":"hard","clues":[{"text":"Preoccupation with defect","category":"symptom"},{"text":"High-dose SSRI + CBT","category":"treatment"},{"text":"Repetitive mirror checking","category":"criteria"},{"text":"High rate of plastic surgery","category":"risk"}]}
 ];
