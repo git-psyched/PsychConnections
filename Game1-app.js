@@ -91,3 +91,38 @@ function PsychConnections() {
           className: 'p-4 bg-white border border-slate-200 text-xs font-sans hover:bg-slate-900 hover:text-white transition-all'
         }, dStr);
       })
+    ) : e('div', null,
+      e('div', {className: 'grid grid-cols-4 gap-2 mb-6'},
+        clues.map((clue, i) => {
+          const isFound = foundGroups.some(g => g.diagName === clue.diagName);
+          const isSel = selected.find(c => c.text === clue.text);
+          return e('button', {
+            key: i,
+            onClick: () => handleClueClick(clue),
+            className: `h-24 p-2 text-[10px] font-sans font-bold uppercase border transition-all flex items-center justify-center text-center leading-tight ${
+              isFound ? 'bg-slate-100 text-slate-300 border-slate-100' :
+              isSel ? 'bg-slate-900 text-white border-slate-900 shadow-lg scale-105 z-10' :
+              'bg-white border-slate-300 hover:border-slate-900 shadow-sm'
+            }`
+          }, clue.text);
+        })
+      ),
+      e('div', {className: 'space-y-2'},
+        foundGroups.map((g, i) => 
+          e('div', {key: i, className: 'p-4 bg-slate-900 text-white flex justify-between items-center rounded shadow-md animate-in fade-in slide-in-from-bottom-2'},
+            e('span', {className: 'font-sans font-bold uppercase tracking-widest text-xs'}, g.diagName),
+            e('span', {className: 'font-sans text-[10px] opacity-50 italic'}, 'FORMULATED')
+          )
+        )
+      ),
+      foundGroups.length === 4 && e('div', {className: 'text-center mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded'},
+        e('h2', {className: 'text-xl font-bold text-emerald-900 mb-2'}, 'Clinic Completed!'),
+        e('p', {className: 'text-sm text-emerald-700 mb-4'}, `Diagnostic clarity achieved with ${attempts} mistakes.`),
+        e('button', {onClick: () => { setView('archive') }, className: 'bg-emerald-600 text-white px-6 py-2 rounded-full text-sm font-bold'}, 'View Past Cases')
+      )
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(e(PsychConnections));
