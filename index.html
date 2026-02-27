@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Psych Connections - Daily Psych Shelf Prep</title>
-  <meta name="description" content="Daily psychiatric diagnosis puzzle game for shelf exam preparation">
+  <title>Psych Connections | Clinical Protocol</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+    body { background-color: #020617; margin: 0; overflow-x: hidden; font-family: sans-serif; }
+    #root { background: radial-gradient(circle at top right, #0f172a, #020617); min-height: 100vh; color: white; }
+    .glass { backdrop-filter: blur(10px); background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
   <div id="root"></div>
-  <script src="Game1-PsychConnections-data.js"></script>
-  <script src="Game1-app.js"></script>
+  <script src="psych_data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
