@@ -1,7 +1,7 @@
 const { useState, useEffect } = React;
 const e = React.createElement;
 
-// Categories mapped to Psych Connections logic with high-end Gene-Link colors
+// Categories mapped to Psych Connections logic with high-end Gene-Link colors since i loved Gene-Link so much!!!
 const CATEGORY_COLORS = {
   symptom: { bg: 'bg-emerald-600', selected: 'bg-emerald-500', found: 'bg-emerald-900/40', border: 'border-emerald-400', text: 'text-emerald-100' },
   treatment: { bg: 'bg-blue-600', selected: 'bg-blue-500', found: 'bg-blue-900/40', border: 'border-blue-400', text: 'text-blue-100' },
@@ -129,7 +129,7 @@ function App() {
   // VIEWS
   if (view === 'landing') return e('div', {className: 'flex items-center justify-center min-h-screen p-6 text-white text-center'},
     e('div', {className: 'glass p-10 rounded-3xl shadow-2xl max-w-sm w-full border border-white/10'},
-      e('h1', {className: 'text-4xl font-black mb-2 tracking-tighter'}, 'PSYCH-LINK'),
+      e('h1', {className: 'text-4xl font-black mb-2 tracking-tighter'}, 'PsychConnections'),
       e('p', {className: 'text-emerald-500/80 text-[10px] uppercase tracking-widest mb-10 font-mono'}, "Clinical Connection Protocol"),
       e('div', {className: 'flex flex-col gap-3'},
         e('button', {onClick: initGame, className: 'w-full py-4 bg-white text-slate-950 font-bold rounded-2xl hover:bg-emerald-400 transition-all'}, 'START ASSESSMENT'),
