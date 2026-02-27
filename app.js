@@ -127,7 +127,7 @@ function App() {
         e('h2', {className: 'text-2xl font-black mb-6 text-emerald-400 italic'}, "Protocol Manual"),
         e('div', {className: 'space-y-4 text-sm text-slate-300 leading-relaxed text-left'},
           e('p', null, e('b', {className:'text-white'}, "1. Goal: "), "Connect 4 tiles for one diagnosis."),
-          e('p', null, e('b', {className:'text-white'}, "2. Structure: "), "Sets contain 1 Symptom, 1 Treatment, 1 Criteria, and 1 Risk Factor."),
+          e('p', null, e('b', {className:'text-white'}, "2. Structure: "), "Sets contain 1 Symptom - Green, 1 Treatment - Blue, 1 Criteria - Green, and 1 Risk Factor - Red."),
           e('p', null, e('b', {className:'text-white'}, "3. Limits: "), "4 attempts allowed."),
           e('p', null, e('b', {className:'text-white'}, "4. Bank: "), "Solved cases are saved for review.")
         ),
