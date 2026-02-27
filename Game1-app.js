@@ -1,19 +1,194 @@
 const { useState, useEffect } = React;
 const e = React.createElement;
 
+// Categories mapped to Psych Connections logic with high-end Gene-Link colors
 const CATEGORY_COLORS = {
-  symptom: {bg:'bg-emerald-500',selected:'bg-emerald-600',found:'bg-emerald-400',border:'border-emerald-400'},
-  treatment: {bg:'bg-blue-500',selected:'bg-blue-600',found:'bg-blue-400',border:'border-blue-400'},
-  criteria: {bg:'bg-purple-500',selected:'bg-purple-600',found:'bg-purple-400',border:'border-purple-400'},
-  risk: {bg:'bg-rose-500',selected:'bg-rose-600',found:'bg-rose-400',border:'border-rose-400'}
+  symptom: { bg: 'bg-emerald-600', selected: 'bg-emerald-500', found: 'bg-emerald-900/40', border: 'border-emerald-400', text: 'text-emerald-100' },
+  treatment: { bg: 'bg-blue-600', selected: 'bg-blue-500', found: 'bg-blue-900/40', border: 'border-blue-400', text: 'text-blue-100' },
+  criteria: { bg: 'bg-purple-600', selected: 'bg-purple-500', found: 'bg-purple-900/40', border: 'border-purple-400', text: 'text-purple-100' },
+  risk: { bg: 'bg-rose-600', selected: 'bg-rose-500', found: 'bg-rose-900/40', border: 'border-rose-400', text: 'text-rose-100' }
 };
 
-function getTodayDateString(){return new Date().toISOString().split('T')[0]}
-function seededRandom(seed){const x=Math.sin(seed)*10000;return x-Math.floor(x)}
-function getPuzzleForDate(dateString){const seed=dateString.split('-').reduce((acc,val)=>acc+parseInt(val),0);const random=(index)=>seededRandom(seed+index);const easy=ALL_DIAGNOSES.filter(d=>d.difficulty==='easy');const medium=ALL_DIAGNOSES.filter(d=>d.difficulty==='medium');const hard=ALL_DIAGNOSES.filter(d=>d.difficulty==='hard');return[easy[Math.floor(random(1)*easy.length)],medium[Math.floor(random(2)*medium.length)],medium[Math.floor(random(3)*medium.length)],hard[Math.floor(random(4)*hard.length)]]}
-function shuffleArray(array,seed){const shuffled=[...array];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(seededRandom(seed+i)*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}return shuffled}
+// SFX Engine
+let audioCtx = null;
+const playSfx = (freq, type = 'sine', duration = 0.1) => {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type; osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
+};
 
-function PsychConnections(){const[view,setView]=useState('menu');const[selectedDate,setSelectedDate]=useState(getTodayDateString());const[gameBoard,setGameBoard]=useState([]);const[selected,setSelected]=useState([]);const[foundGroups,setFoundGroups]=useState([]);const[attempts,setAttempts]=useState(0);const[gameOver,setGameOver]=useState(false);const[message,setMessage]=useState("");const[showResults,setShowResults]=useState(false);const[completedPuzzles,setCompletedPuzzles]=useState({});useEffect(()=>{const saved=localStorage.getItem('psychConnectionsCompleted');if(saved)setCompletedPuzzles(JSON.parse(saved))},[]);const saveCompletedPuzzle=(date,score)=>{const updated={...completedPuzzles,[date]:score};setCompletedPuzzles(updated);localStorage.setItem('psychConnectionsCompleted',JSON.stringify(updated))};const startGame=(dateString)=>{setSelectedDate(dateString);const selectedDiagnoses=getPuzzleForDate(dateString);const seed=dateString.split('-').reduce((acc,val)=>acc+parseInt(val),0);const allClues=selectedDiagnoses.flatMap((diagnosis,diagIndex)=>diagnosis.clues.map(clue=>({...clue,diagnosisIndex:diagIndex,diagnosisName:diagnosis.name})));setGameBoard(shuffleArray(allClues,seed+100));setSelected([]);setFoundGroups([]);setAttempts(0);setGameOver(false);setMessage("");setShowResults(false);setView('daily')};const handleClueClick=(index)=>{if(gameOver||foundGroups.some(group=>group.includes(index)))return;if(selected.includes(index))setSelected(selected.filter(i=>i!==index));else if(selected.length<4)setSelected([...selected,index])};const handleSubmit=()=>{if(selected.length!==4){setMessage("Please select exactly 4 clues");setTimeout(()=>setMessage(""),2000);return}const selectedClues=selected.map(i=>gameBoard[i]);const diagnosisIndex=selectedClues[0].diagnosisIndex;const isCorrect=selectedClues.every(clue=>clue.diagnosisIndex===diagnosisIndex);if(isCorrect){setFoundGroups([...foundGroups,selected]);setSelected([]);setMessage(`Correct! ${selectedClues[0].diagnosisName}`);setTimeout(()=>setMessage(""),2000);if(foundGroups.length===3){setGameOver(true);saveCompletedPuzzle(selectedDate,4);setTimeout(()=>setShowResults(true),1500)}}else{setAttempts(attempts+1);setMessage("Incorrect grouping. Try again!");setTimeout(()=>setMessage(""),2000);if(attempts+1>=4){setGameOver(true);saveCompletedPuzzle(selectedDate,foundGroups.length);setTimeout(()=>setShowResults(true),1500)}}};const getClueStyle=(index)=>{const clue=gameBoard[index];const isFound=foundGroups.some(group=>group.includes(index));const isSelected=selected.includes(index);const colors=CATEGORY_COLORS[clue.category];if(isFound)return`${colors.found} text-white cursor-not-allowed opacity-60`;if(isSelected)return`${colors.selected} text-white border-4 ${colors.border}`;return`${colors.bg} text-white hover:opacity-90 cursor-pointer`};const generateArchiveDates=()=>{const dates=[];const today=new Date();for(let i=0;i<100;i++){const date=new Date(today);date.setDate(date.getDate()-i);dates.push(date.toISOString().split('T')[0])}return dates};if(view==='tutorial')return e('div',{className:'min-h-screen bg-slate-50 p-6 flex items-center justify-center'},e('div',{className:'max-w-md w-full bg-white rounded-lg shadow-lg border border-slate-200 p-8'},e('h2',{className:'text-3xl font-serif font-bold text-slate-800 text-center mb-6'},'How to Play'),e('div',{className:'space-y-4 text-slate-700'},e('p',{className:'leading-relaxed'},'Identify 4 psychiatric diagnoses by grouping related clues.'),e('p',{className:'leading-relaxed'},'Each diagnosis has: ',e('span',{className:'font-semibold text-emerald-600'},'symptom'),', ',e('span',{className:'font-semibold text-blue-600'},'treatment'),', ',e('span',{className:'font-semibold text-purple-600'},'DSM criteria'),', ',e('span',{className:'font-semibold text-rose-600'},'risk factor')),e('p',{className:'leading-relaxed'},'Select 4 clues, tap Submit. You have 4 attempts!')),e('button',{onClick:()=>setView('menu'),className:'w-full mt-8 bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition-colors'},'Got it')));if(view==='menu'){const todayDate=getTodayDateString();const todayCompleted=completedPuzzles[todayDate];return e('div',{className:'min-h-screen bg-slate-50 p-6 flex items-center justify-center'},e('div',{className:'max-w-md w-full'},e('div',{className:'text-center mb-8'},e('h1',{className:'text-5xl font-serif font-bold text-slate-800 mb-2'},'Psych Connections'),e('p',{className:'text-slate-500 text-sm tracking-wide'},'DAILY PSYCH SHELF PREP')),e('div',{className:'space-y-3'},e('button',{onClick:()=>startGame(todayDate),className:'w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-5 px-6 rounded-lg transition-colors shadow-sm relative'},e('div',{className:'text-xl mb-1'},"Today's Puzzle"),e('div',{className:'text-sm opacity-90'},new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})),todayCompleted!==undefined&&e('div',{className:'absolute top-3 right-3 bg-emerald-500 text-white text-xs px-2 py-1 rounded'},`${todayCompleted}/4 ✓`)),e('button',{onClick:()=>setView('tutorial'),className:'w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-4 px-6 rounded-lg border border-slate-300 transition-colors'},e('div',{className:'text-lg'},'How to Play')),e('button',{onClick:()=>setView('archive'),className:'w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-4 px-6 rounded-lg border border-slate-300 transition-colors'},e('div',{className:'text-lg'},'Archive'),e('div',{className:'text-sm opacity-75'},'100 past puzzles'))),e('div',{className:'mt-6 text-center text-slate-500 text-xs'},`${Object.keys(completedPuzzles).length} puzzles completed • ${ALL_DIAGNOSES.length} diagnoses`)))}if(view==='archive'){const archiveDates=generateArchiveDates();return e('div',{className:'min-h-screen bg-slate-50 p-6'},e('div',{className:'max-w-2xl mx-auto'},e('div',{className:'flex items-center justify-between mb-6'},e('button',{onClick:()=>setView('menu'),className:'text-slate-600 hover:text-slate-800 font-medium'},'← Back'),e('h1',{className:'text-2xl font-serif font-bold text-slate-800'},'Archive'),e('div',{className:'w-16'})),e('div',{className:'grid grid-cols-1 gap-2'},...archiveDates.map(date=>{const dateObj=new Date(date+'T00:00:00');const isToday=date===getTodayDateString();const completed=completedPuzzles[date];return e('button',{key:date,onClick:()=>startGame(date),className:'bg-white hover:bg-slate-50 border border-slate-200 rounded-lg p-4 text-left transition-colors flex items-center justify-between'},e('div',null,e('div',{className:'font-semibold text-slate-800'},dateObj.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})),isToday&&e('div',{className:'text-xs text-blue-600 font-medium'},'Today')),completed!==undefined&&e('div',{className:`px-3 py-1 rounded text-sm font-medium ${completed===4?'bg-emerald-100 text-emerald-700':'bg-slate-100 text-slate-600'}`},`${completed}/4`))}))))}if(showResults){const allDiagnoses=[...new Set(gameBoard.map(clue=>clue.diagnosisName))];return e('div',{className:'min-h-screen bg-slate-50 p-6'},e('div',{className:'max-w-2xl mx-auto'},e('div',{className:'text-center mb-6'},e('h1',{className:'text-3xl font-serif font-bold text-slate-800 mb-2'},foundGroups.length===4?'Perfect Score!':'Game Over'),e('p',{className:'text-slate-600'},`You found ${foundGroups.length} out of 4 groups`)),e('div',{className:'space-y-3 mb-6'},...allDiagnoses.map((diagnosisName,idx)=>{const diagnosisClues=gameBoard.filter(clue=>clue.diagnosisName===diagnosisName);const wasFound=foundGroups.some(group=>diagnosisClues.every(clue=>group.includes(gameBoard.indexOf(clue))));return e('div',{key:idx,className:`rounded-lg p-4 border-2 ${wasFound?'bg-emerald-50 border-emerald-300':'bg-slate-100 border-slate-300'}`},e('h3',{className:'font-semibold text-slate-800 mb-3 flex items-center gap-2'},e('span',{className:wasFound?'text-emerald-600':'text-slate-400'},wasFound?'✓':'✗'),diagnosisName),e('div',{className:'grid grid-cols-2 gap-2'},...diagnosisClues.map((clue,clueIdx)=>{const colors=CATEGORY_COLORS[clue.category];return e('div',{key:clueIdx,className:`${colors.bg} text-white text-xs p-2 rounded leading-tight`},clue.text)})))})),e('div',{className:'space-y-3'},e('button',{onClick:()=>setView('menu'),className:'w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-lg transition-colors'},'Back to Menu'),e('button',{onClick:()=>setView('archive'),className:'w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 rounded-lg border border-slate-300 transition-colors'},'View Archive'))))}return e('div',{className:'min-h-screen bg-slate-50 p-4 pb-8'},e('div',{className:'max-w-2xl mx-auto'},e('div',{className:'flex items-center justify-between mb-4 pt-2'},e('button',{onClick:()=>setView('menu'),className:'text-slate-600 hover:text-slate-800 font-medium'},'← Menu'),e('div',{className:'text-center'},e('h1',{className:'text-2xl font-serif font-bold text-slate-800'},'Psych Connections')),e('button',{onClick:()=>setView('tutorial'),className:'text-slate-600 hover:text-slate-800'},'?')),e('div',{className:'bg-white border border-slate-200 rounded-lg p-3 mb-4 text-center shadow-sm'},e('p',{className:'text-slate-600 text-sm leading-snug'},'Find groups of 4 clues for the same psychiatric diagnosis')),e('div',{className:'flex justify-between mb-4 gap-3'},e('div',{className:'flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2 text-center'},e('span',{className:'text-slate-600 text-sm'},'Groups: ',e('strong',{className:'text-slate-800'},`${foundGroups.length}/4`))),e('div',{className:'flex-1 bg-white border border-slate-200 rounded-lg px-4 py-2 text-center'},e('span',{className:'text-slate-600 text-sm'},'Attempts: ',e('strong',{className:'text-slate-800'},`${4-attempts}`)))),message&&e('div',{className:`text-center mb-4 p-3 rounded-lg font-medium ${message.includes('Correct')?'bg-emerald-100 text-emerald-800 border border-emerald-300':'bg-rose-100 text-rose-800 border border-rose-300'}`},message),e('div',{className:'grid grid-cols-4 gap-2 mb-6'},...gameBoard.map((clue,index)=>e('button',{key:index,onClick:()=>handleClueClick(index),className:`${getClueStyle(index)} p-2 rounded-lg text-xs font-medium transition-all duration-200 min-h-[85px] flex items-center justify-center text-center leading-tight break-words`,style:{hyphens:'auto',wordWrap:'break-word'},disabled:gameOver||foundGroups.some(group=>group.includes(index))},e('span',{className:'block w-full'},clue.text)))),e('div',{className:'flex gap-3 mb-6'},e('button',{onClick:()=>setSelected([]),disabled:selected.length===0,className:'flex-1 bg-white hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-400 text-slate-700 font-semibold py-3 rounded-lg border border-slate-300 transition-colors'},'Deselect'),e('button',{onClick:handleSubmit,disabled:selected.length!==4||gameOver,className:'flex-1 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 disabled:text-slate-500 text-white font-semibold py-3 rounded-lg transition-colors'},'Submit')),e('div',{className:'grid grid-cols-2 gap-2 bg-white border border-slate-200 rounded-lg p-3'},...Object.entries(CATEGORY_COLORS).map(([category,colors])=>e('div',{key:category,className:'flex items-center gap-2'},e('div',{className:`w-3 h-3 rounded ${colors.bg}`}),e('span',{className:'text-slate-600 text-xs capitalize'},category))))))}
+function App() {
+  const [view, setView] = useState('landing');
+  const [gameBoard, setGameBoard] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [foundGroups, setFoundGroups] = useState([]);
+  const [mistakes, setMistakes] = useState(0);
+  const [message, setMessage] = useState("");
+  const [unlocked, setUnlocked] = useState([]);
+  const [showDetail, setShowDetail] = useState(null);
 
-const root=ReactDOM.createRoot(document.getElementById('root'));
-root.render(e(PsychConnections));
+  // Load Study Bank from LocalStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('psychlink_unlocked');
+    if (saved) setUnlocked(JSON.parse(saved));
+  }, []);
+
+  const initGame = () => {
+    playSfx(660);
+    // 1. Pick 4 random diagnoses from the data file
+    const pool = [...ALL_DIAGNOSES];
+    const shuffledPool = pool.sort(() => 0.5 - Math.random());
+    const selectedSet = shuffledPool.slice(0, 4);
+    
+    // 2. Map clues and categories
+    let clues = selectedSet.flatMap((d, i) => 
+      d.clues.map(c => ({ 
+        ...c, 
+        group: i, 
+        name: d.name, 
+        fullData: d 
+      }))
+    );
+
+    // 3. Fisher-Yates Shuffle for the 16 tiles
+    for (let i = clues.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [clues[i], clues[j]] = [clues[j], clues[i]];
+    }
+
+    setGameBoard(clues);
+    setFoundGroups([]);
+    setMistakes(0);
+    setSelected([]);
+    setMessage("DSM-5 PROTOCOL ACTIVE");
+    setView('game');
+  };
+
+  const handleSelect = (i) => {
+    if (foundGroups.flat().includes(i) || mistakes >= 4) return;
+    playSfx(440, 'triangle', 0.05);
+    if (selected.includes(i)) {
+      setSelected(selected.filter(idx => idx !== i));
+    } else if (selected.length < 4) {
+      setSelected([...selected, i]);
+    }
+  };
+
+  const submit = () => {
+    const group = gameBoard[selected[0]].group;
+    const diagnosis = gameBoard[selected[0]].fullData;
+    
+    if (selected.every(i => gameBoard[i].group === group)) {
+      playSfx(880, 'sine', 0.2);
+      setFoundGroups([...foundGroups, [...selected]]);
+      setShowDetail(diagnosis);
+      
+      // Save to Study Bank if new
+      if (!unlocked.find(u => u.name === diagnosis.name)) {
+        const nextUnlocked = [...unlocked, diagnosis];
+        setUnlocked(nextUnlocked);
+        localStorage.setItem('psychlink_unlocked', JSON.stringify(nextUnlocked));
+      }
+      setSelected([]);
+      setMessage("DIAGNOSIS VERIFIED");
+    } else {
+      playSfx(150, 'sawtooth', 0.3);
+      setMistakes(m => m + 1);
+      setMessage("CLINICAL MISMATCH");
+    }
+  };
+
+  const isLoss = mistakes >= 4;
+
+  // GRID RENDERING
+  const renderGrid = () => (
+    e('div', {className: 'grid grid-cols-4 gap-2 mb-8'},
+      gameBoard.map((clue, index) => {
+        const isFound = foundGroups.some(g => g.includes(index));
+        const isSelected = selected.includes(index);
+        const theme = CATEGORY_COLORS[clue.category];
+        
+        return e('button', {
+          key: index,
+          onClick: () => handleSelect(index),
+          className: `h-24 p-2 rounded-xl text-[10px] font-black border-2 transition-all duration-300 flex items-center justify-center text-center uppercase leading-tight
+            ${isFound ? 'opacity-10 grayscale scale-90 border-transparent pointer-events-none' : 
+              isSelected ? `${theme.bg} border-white scale-105 z-10 shadow-[0_0_25px_rgba(255,255,255,0.4)] ring-2 ring-white` : 
+              isLoss ? 'bg-slate-900 opacity-40 border-slate-800' :
+              `${theme.bg} border-white/10 hover:brightness-110 hover:scale-[1.02] text-white shadow-lg`}`
+        }, clue.text);
+      })
+    )
+  );
+
+  // VIEWS
+  if (view === 'landing') return e('div', {className: 'flex items-center justify-center min-h-screen p-6 text-white text-center'},
+    e('div', {className: 'glass p-10 rounded-3xl shadow-2xl max-w-sm w-full border border-white/10'},
+      e('h1', {className: 'text-4xl font-black mb-2 tracking-tighter'}, 'PSYCH-LINK'),
+      e('p', {className: 'text-emerald-500/80 text-[10px] uppercase tracking-widest mb-10 font-mono'}, "Clinical Connection Protocol"),
+      e('div', {className: 'flex flex-col gap-3'},
+        e('button', {onClick: initGame, className: 'w-full py-4 bg-white text-slate-950 font-bold rounded-2xl hover:bg-emerald-400 transition-all'}, 'START ASSESSMENT'),
+        e('button', {onClick: () => setView('bank'), className: 'w-full py-4 border border-slate-700 text-slate-300 font-bold rounded-2xl hover:bg-slate-800 text-sm font-mono tracking-tighter'}, 'ACCESS STUDY BANK')
+      )
+    )
+  );
+
+  if (view === 'bank') return e('div', {className: 'max-w-md mx-auto p-6 text-white min-h-screen'},
+    e('button', {onClick: () => setView('landing'), className: 'mb-6 text-xs font-bold text-slate-500 hover:text-white transition-colors'}, "← TERMINAL HOME"),
+    e('h2', {className: 'text-3xl font-black mb-8 tracking-tighter uppercase font-mono'}, "Study Bank"),
+    e('div', {className: 'space-y-4 pb-10'},
+        unlocked.length === 0 ? e('p', {className: 'text-slate-600 text-center py-20 font-mono text-xs'}, "NO DATA RECOVERED. COMPLETE ASSESSMENTS TO UNLOCK.") :
+        unlocked.map((item, i) => e('div', {key: i, className: 'glass p-6 rounded-3xl border-white/5'}, 
+            e('div', {className: 'text-xl font-black uppercase mb-4 text-emerald-400 font-mono leading-none'}, item.name),
+            e('div', {className: 'grid grid-cols-1 gap-3'}, item.clues.map((c, ci) => 
+                e('div', {key: ci, className: 'flex items-start gap-3'}, 
+                    e('div', {className: `w-1.5 h-1.5 mt-1.5 rounded-full ${CATEGORY_COLORS[c.category].bg}`}),
+                    e('div', null,
+                      e('div', {className: 'text-[8px] text-slate-500 uppercase font-black'}, c.category),
+                      e('div', {className: 'text-xs text-slate-300 font-medium leading-tight'}, c.text)
+                    )
+                )
+            ))
+        ))
+    )
+  );
+
+  return e('div', {className: 'max-w-md mx-auto p-4 pt-8 text-white min-h-screen'},
+    e('header', {className: 'flex justify-between items-center mb-8 bg-slate-900/40 p-4 rounded-2xl border border-white/5'},
+      e('button', {onClick: () => setView('landing'), className: 'text-[10px] font-black text-slate-500 hover:text-rose-500 uppercase tracking-tighter transition-colors'}, "Abort Protocol"),
+      e('div', {className: 'flex gap-2'}, [...Array(4)].map((_, i) => e('div', {key: i, className: `w-2.5 h-2.5 rounded-full border-2 ${i < mistakes ? 'bg-rose-600 border-rose-400 shadow-[0_0_10px_rgba(225,29,72,0.8)]' : 'bg-slate-950 border-slate-800'}`})))
+    ),
+    renderGrid(),
+    e('div', {className: 'flex flex-col gap-4 items-center mt-6 text-center'},
+      e('div', {className: 'h-4 text-[10px] font-mono tracking-[0.3em] text-emerald-400 uppercase animate-pulse font-bold'}, message),
+      (isLoss || foundGroups.length === 4) ? 
+        e('button', {onClick: initGame, className: 'w-full py-5 bg-emerald-500 text-slate-950 font-black rounded-3xl shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:bg-emerald-400 transition-all scale-105 uppercase'}, 'New Assessment') :
+        e('button', {onClick: submit, disabled: selected.length !== 4, className: 'w-full py-5 bg-white text-slate-950 font-black rounded-3xl disabled:opacity-10 transition-all shadow-xl hover:scale-[1.02] active:scale-95 uppercase'}, 'Verify Selection'),
+      !isLoss && foundGroups.length < 4 && e('button', {onClick: () => setSelected([]), className: 'text-[10px] font-black text-slate-600 hover:text-white uppercase tracking-widest transition-colors'}, "Flush Buffer")
+    ),
+    showDetail && e('div', {className: 'fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/90 backdrop-blur-xl'},
+        e('div', {className: 'glass p-8 rounded-[40px] max-w-sm w-full border border-white/20 shadow-2xl transform animate-in fade-in zoom-in duration-300'},
+          e('div', {className: 'text-[10px] text-emerald-400 font-mono mb-2 tracking-[0.4em] font-black text-center'}, "DECRYPTION COMPLETE"),
+          e('h2', {className: 'text-4xl font-black mb-8 text-white tracking-tighter uppercase leading-none text-center font-mono'}, showDetail.name),
+          e('div', {className: 'space-y-5 mb-10'},
+            showDetail.clues.map((c, idx) => e('div', {key: idx, className: 'flex items-start gap-4 p-3 rounded-2xl bg-white/5 border border-white/5'},
+              e('div', {className: `w-3 h-3 mt-1.5 rounded-full ${CATEGORY_COLORS[c.category].bg} shadow-[0_0_10px_currentColor]`}),
+              e('div', null, 
+                  e('div', {className: 'text-[8px] uppercase text-slate-500 font-black tracking-widest'}, c.category),
+                  e('div', {className: 'text-sm text-slate-100 font-bold leading-tight'}, c.text)
+              )
+            ))
+          ),
+          e('button', {onClick: () => setShowDetail(null), className: 'w-full py-5 bg-emerald-500 text-slate-950 font-black rounded-3xl hover:bg-emerald-400 transition-all shadow-lg uppercase'}, 'Return to Grid')
+        )
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(e(App));
